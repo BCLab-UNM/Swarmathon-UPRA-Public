@@ -56,7 +56,7 @@ void PickUpController::SetTagData(vector<Tag> tags)
       }
       else
       {
-
+        // If the center is seen, then don't try to pick up the cube.
         if(tags[i].getID() == 256)
         {
 
@@ -75,7 +75,12 @@ void PickUpController::SetTagData(vector<Tag> tags)
 
     float cameraOffsetCorrection = 0.023; //meters;
 
-    ///TODO: Explain the trig going on here- blockDistance is c, 0.195 is b; find a
+    // using a^2 + b^2 = c^2 to find the distance to the block
+    // 0.195 is the height of the camera lens above the ground in cm.
+    //
+    // a is the linear distance from the robot to the block, c is the
+    // distance from the camera lens, and b is the height of the
+    // camera above the ground.
     blockDistanceFromCamera = hypot(hypot(tags[target].getPositionX(), tags[target].getPositionY()), tags[target].getPositionZ());
 
     if ( (blockDistanceFromCamera*blockDistanceFromCamera - 0.195*0.195) > 0 )
@@ -101,7 +106,8 @@ void PickUpController::SetTagData(vector<Tag> tags)
 
 bool PickUpController::SetSonarData(float rangeCenter)
 {
-
+  // If the center ultrasound sensor is blocked by a very close
+  // object, then a cube has been successfully lifted.
   if (rangeCenter < 0.12 && targetFound)
   {
     result.type = behavior;
@@ -134,6 +140,9 @@ void PickUpController::ProcessData()
 
   //cout << "distance : " << blockDistanceFromCamera << " time is : " << Td << endl;
 
+  // If the block is very close to the camera then the robot has
+  // successfully lifted a target. Enter the target held state to
+  // return to the center.
   if (blockDistanceFromCamera < 0.14 && Td < 3.9)
   {
     result.type = behavior;
@@ -141,7 +150,9 @@ void PickUpController::ProcessData()
     result.reset = true;
     targetHeld = true;
   }
-  //Lower wrist and open fingures if no locked targt
+  //Lower wrist and open fingers if no locked target -- this is the
+  //case if the robot lost tracking, or missed the cube when
+  //attempting to pick it up.
   else if (!lockTarget)
   {
     //set gripper;
@@ -155,6 +166,7 @@ bool PickUpController::ShouldInterrupt(){
 
   ProcessData();
 
+  // saw center tags, so don't try to pick up the cube.
   if (release_control)
   {
     release_control = false;
@@ -170,6 +182,7 @@ bool PickUpController::ShouldInterrupt(){
   }
   else if (!targetFound && interupted)
   {
+    // had a cube in sight but lost it, interrupt again to release control
     interupted = false;
     has_control = false;
     return true;
@@ -219,11 +232,11 @@ Result PickUpController::DoWork()
     // The sequence of events is:
     // 1. Target aquisition phase: Align the robot with the closest visible target cube, if near enough to get a target lock then start the pickup timer (Td)
     // 2. Approach Target phase: until *grasp_time_begin* seconds
-    // 3. Stop and close fingers (hopefully on a block - we won't be able to see it remember): at *grasp_time_begin* seconds 
-    // 4. Raise the gripper - does the rover see a block or did it miss it: at *raise_time_begin* seconds 
+    // 3. Stop and close fingers (hopefully on a block - we won't be able to see it remember): at *grasp_time_begin* seconds
+    // 4. Raise the gripper - does the rover see a block or did it miss it: at *raise_time_begin* seconds
     // 5. If we get here the target was not seen in the robots gripper so drive backwards and and try to get a new lock on a target: at *target_require_begin* seconds
     // 6. If we get here we give up and release control with a task failed flag: for *target_pickup_task_time_limit* seconds
-    
+
     // If we don't see any blocks or cubes turn towards the location of the last cube we saw.
     // I.E., try to re-aquire the last cube we saw.
 
@@ -248,7 +261,7 @@ Result PickUpController::DoWork()
         nTargetsSeen = 0;
     }
 
-    
+
     if (nTargetsSeen == 0 && !lockTarget)
     {
       // This if statement causes us to time out if we don't re-aquire a block within the time limit.

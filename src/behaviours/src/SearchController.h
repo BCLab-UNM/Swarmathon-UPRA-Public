@@ -26,6 +26,21 @@ public:
   void SetCurrentLocation(Point currentLocation);
   void SetCenterLocation(Point centerLocation);
   void SetSuccesfullPickup();
+  
+//Christopher
+void MoveStraight(int);
+void MoveLeft(int);
+void MoveRight(int);
+void MoveDown(int);
+void MoveUp(int);
+void MoveDiagonalRight(int);
+void MoveDiagonalLeft(int);
+void DoSquare();
+
+
+
+
+  int distance = 0;//
 
 protected:
 
@@ -38,13 +53,33 @@ private:
   Point centerLocation;
   Point searchLocation;
   int attemptCount = 0;
+
   //struct for returning data to ROS adapter
   Result result;
 
   // Search state
   // Flag to allow special behaviour for the first waypoint
   bool first_waypoint = true;
+  bool second_waypoint = false;
+  bool third_waypoint = false;
+  bool fourth_waypoint = false;
+  bool fifth_waypoint = false;
+bool six_waypoint = false;
+bool seven_waypoint = false;
+bool eight_waypoint = false;
+bool nine_waypoint = false;
+bool ten_waypoint = false;
+bool eleven_waypoint = false;
+bool twelve_waypoint = false;
+bool thirdteen_waypoint = false;
+bool fourteen_waypoint = false;
+bool fifthteen_waypoint = false;
+bool sixteen_waypoint = false;
+bool seventeen_waypoint = false;
+bool eightteen_waypoint = false;
+bool nineteen_waypoint = false;
   bool succesfullPickup = false;
+
 };
 
 #endif /* SEARCH_CONTROLLER */
